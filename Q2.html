@@ -1,1 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python Code Challenge 2026</title>
+<script src="https://cdn.jsdelivr.net/pyodide/v314.0.5/full/pyodide.js"></script>
+<link rel="stylesheet" href="PCC.css">
+</head>
+
+<body>
+<div class="container">
+<h1>🐍 Python Coding Challenge</h1>
+<div class="question">
+<h2>Challenge 2</h2>
+ 
+<p>
+Liam needs 50 or more marks to pass the course and knows his total so far.
+He receives his mark for the final assessent. Can you tell him his final mark?</p>
+<p>
+Input will consist of 2 lines. The first is a positive integer representing his marks on the course so far. 
+The second line has an integer which should be added to his current mark.
+Output will consist of 1 line. "Liam, you now have n marks." where n is his final total.
+</p>
+<p>
+Sample input 1<br/>
+35<br/>
+15<br/.
+</p>
+<p>
+your program should print:
+</p>
+<div class="example">Liam, you now have 50 marks.</div>
+<p>
+Sample input 2<br/>
+16<br/>
+-1<br/>
+</p>
+<div class="example">Liam, you now have 15 marks.t</div>
+</div>
+
+<h2>Your Python Code</h2>
+<textarea id="code">age = int(input())
+if age >= 18:
+    print("You are an adult")
+else:
+    print("You are not an adult")</textarea>
+
+<h2>Sample Test</h2>
+<p>
+The program will be tested using several different ages.
+</p>
+
+<button id="runButton" onclick="runTests()" disabled>
+Loading Python...
+</button>
+
+<div id="status" class="loading">
+Loading Python...
+</div>
+
+<label for="output">Program Output</label>
+<textarea id="output" readonly></textarea>
+<div id="testResults"></div>
+<p class="small">
+Your program must produce exactly the expected output for each test.
+</p>
+
+</div>
+
+<script>
+let pyodide = null;
+/*
+=========================================================
+TEACHER SETTINGS
+=========================================================
+Change these to create a new programming question.
+Each test contains:
+input  = what the program receives through input()
+output = exactly what the program should print
+=========================================================
+*/
+
+const tests = [
+    {
+        input: "17",
+        output: "You are not an adult"
+    },
+    {
+        input: "18",
+        output: "You are an adult"
+    },
+    {
+        input: "25",
+        output: "You are an adult"
+    }
+];
+/*
+=========================================================
+LOAD PYTHON
+=========================================================
+*/
+async function loadPython() {
+    try {
+        pyodide = await loadPyodide();
+        document.getElementById("runButton").disabled = false;
+        document.getElementById("runButton").textContent =
+            "▶ Run My Code";
+        document.getElementById("status").className = "success";
+        document.getElementById("status").textContent =
+            "Python is ready. Write your code and click Run My Code.";
+    }
+
+    catch (error) {
+        document.getElementById("status").className = "error";
+        document.getElementById("status").textContent =
+            "Could not load Python:\n\n" + error;
+    }
+}
+/*
+=========================================================
+RUN THE STUDENT'S CODE
+=========================================================
+*/
+async function runPythonCode(code, inputData) {
+    let output = "";
+    let inputLines = inputData.split("\n");
+    let inputPosition = 0;
+
+    /*
+    Give Python the test input.
+    */
+    pyodide.setStdin({
+        stdin: function() {
+            if (inputPosition < inputLines.length) {
+                return inputLines[inputPosition++];
+            }
+            return undefined;
+        },
+        isatty: false
+    });
+    /*
+    Capture print() output.
+    */
+    pyodide.setStdout({
+        batched: function(text) {
+            output += text;
+        }
+    });
+    /*
+    Capture error messages.
+    */
+    pyodide.setStderr({
+        batched: function(text) {
+            output += text;
+        }
+    });
+
+    try {
+        await pyodide.runPythonAsync(code);
+        return {
+            success: true,
+            output: output
+        };
+    }
+    catch (error) {
+        return {
+            success: false,
+            output: output,
+            error: error.toString()
+        };
+    }
+}
+
+
+/*
+=========================================================
+COMPARE OUTPUT
+=========================================================
+*/
+function cleanOutput(text) {
+    /*
+    Remove Windows carriage returns.
+    We deliberately DO NOT remove spaces,
+    punctuation or other characters.
+    This means the comparison is very strict.
+    */
+    return text.replace(/\r/g, "");
+}
+
+function outputsMatch(actual, expected) {
+    return cleanOutput(actual) === cleanOutput(expected);
+}
+/*
+=========================================================
+RUN ALL TESTS
+=========================================================
+*/
+async function runTests() {
+    const code =
+        document.getElementById("code").value;
+    const outputBox =
+        document.getElementById("output");
+    const status =
+        document.getElementById("status");
+    const results =
+        document.getElementById("testResults");
+    const button =
+        document.getElementById("runButton");
+
+    if (code.trim() === "") {
+        status.className = "failure";
+        status.textContent =
+            "Please enter some Python code.";
+        return;
+    }
+
+    button.disabled = true;
+    button.textContent = "Running...";
+    outputBox.value = "";
+    results.innerHTML = "";
+    status.className = "loading";
+    status.textContent =
+        "Running your program against the test data...";
+
+    let passed = 0;
+    let firstOutput = "";
+    for (let i = 0; i < tests.length; i++) {
+        const test = tests[i];
+        const result =
+            await runPythonCode(code, test.input);
+        if (i === 0) {
+            firstOutput = result.output;
+            outputBox.value =
+                result.output;
+        }
+
+        const resultDiv =
+            document.createElement("div");
+        resultDiv.className =
+            "test-result";
+        /*
+        Python error
+        */
+        if (!result.success) {
+            resultDiv.classList.add("test-fail");
+            resultDiv.innerHTML =
+                "<strong>Test " + (i + 1) +
+                " ❌ Python error</strong><br><br>" +
+                escapeHtml(result.error);
+            results.appendChild(resultDiv);
+            continue;
+        }
+
+        /*
+        Compare actual and expected output.
+        */
+        if (outputsMatch(
+            result.output,
+            test.output
+        )) {
+            passed++;
+            resultDiv.classList.add("test-pass");
+            resultDiv.innerHTML =
+                "<strong>Test " +
+                (i + 1) +
+                " ✓ Passed</strong>";
+        }
+        else {
+            resultDiv.classList.add("test-fail");
+            resultDiv.innerHTML =
+                "<strong>Test " +
+                (i + 1) +
+                " ❌ Failed</strong><br><br>" +
+                "<strong>Your output:</strong><br>" +
+                "<pre>" +
+                escapeHtml(result.output) +
+                "</pre>" +
+                "<strong>Expected output:</strong><br>" +
+                "<pre>" +
+                escapeHtml(test.output) +
+                "</pre>";
+        }
+        results.appendChild(resultDiv);
+    }
+
+    /*
+    Final result
+    */
+    if (passed === tests.length) {
+        status.className = "success";
+        status.textContent =
+            "🎉 Excellent! All " +
+            tests.length +
+            " tests passed.";
+    }
+    else {
+        status.className = "failure";
+        status.textContent =
+            passed +
+            " / " +
+            tests.length +
+            " tests passed. Keep working!";
+    }
+    button.disabled = false;
+    button.textContent =
+        "▶ Run My Code";
+}
+
+/*
+=========================================================
+SECURITY / DISPLAY HELPER
+Prevents program output from being interpreted
+as HTML.
+=========================================================
+*/
+function escapeHtml(text) {
+    return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+/*
+=========================================================
+START
+=========================================================
+*/
+loadPython();
+</script>
+</body>
+</html>
 
