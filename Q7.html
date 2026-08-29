@@ -32,8 +32,6 @@
           eg "There were 0 invalid respones.", "1 prefer cats". You must use "prefer" for 0, 2 or more and
           "prefers" for 1. Similarly "was" if one, and "were" if 0 or 2 or more.
         </p>
-</b>
-
         <p>
           Sample input 1<br>
           8<br>
@@ -53,7 +51,6 @@
         1 prefers cats.
         3 prefer neither cats nor dogs.
         There was 1 invalid response.</div>
-        
       
     </div>
 
@@ -115,20 +112,16 @@ Output needs to have \n on the end to account for the print() newline
 
 const tests = [
     {
-        input: "Dog\nDog\nNone",
-        output: "Yay, I'm getting a dog.\n"
+        input: "8\nDog\nDog\Cat\nNone\nCat\nCat\nNone\nCow",
+        output: "2 prefer dogs.\n3 prefer cats.\n2 prefer neither cats nor dogs\nThere was 1 invalid response.\n"
     },
     {
-        input: "Cat\nNone\nCat",
-        output: "Okay, I'm getting a cat.\n"
+        input: "3\nDog\nCat\nNone",
+        output: "1 prefers dogs.\n1 prefers cats.\n1 prefers neither cats nor dogs\nThere were 0 invalid responses.\n"
     },
     {
-        input: "Dog\n\None\nCat",
-        output: "I'm moving to Grandma's.\n"
-    },
-    {
-        input: "Cat\n\Cat\nCat",
-        output: "Okay, I'm getting a cat.\n"
+        input: "2\nCow\nCow",
+        output: "0 prefer dogs.\n0 prefer cats.\n0 prefer neither cats nor dogs\nThere were 2 invalid responses.\n"
     }
 ];
 
