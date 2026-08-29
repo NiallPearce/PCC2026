@@ -146,8 +146,9 @@ async function runPythonCode(code, inputData) {
     Capture print() output.
     */
     pyodide.setStdout({
-        batched: function(text) {
-            output += text;
+        raw: function(char) {
+
+        output += String.fromCharCode(char);
         }
     });
     /*
