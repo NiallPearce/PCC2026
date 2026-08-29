@@ -33,7 +33,7 @@
           "prefers" for 1. Similarly "was" if one, and "were" if 0 or 2 or more.
         </p>
         <p>
-          Sample input 1<br>
+          Sample input<br>
           8<br>
           Cat<br>
           Dog<br>
@@ -48,9 +48,9 @@
           Your program should then print the following:
         </p>
         <div class="example">3 prefer dogs.
-        1 prefers cats.
-        3 prefer neither cats nor dogs.
-        There was 1 invalid response.</div>
+1 prefers cats.
+3 prefer neither cats nor dogs.
+There was 1 invalid response.</div>
       
     </div>
 
@@ -112,16 +112,16 @@ Output needs to have \n on the end to account for the print() newline
 
 const tests = [
     {
-        input: "8\nDog\nDog\Cat\nNone\nCat\nCat\nNone\nCow",
-        output: "2 prefer dogs.\n3 prefer cats.\n2 prefer neither cats nor dogs\nThere was 1 invalid response.\n"
+        input: "8\nDog\nDog\nCat\nNone\nCat\nCat\nNone\nCow",
+        output: "2 prefer dogs.\n3 prefer cats.\n2 prefer neither cats nor dogs.\nThere was 1 invalid response.\n"
     },
     {
         input: "3\nDog\nCat\nNone",
-        output: "1 prefers dogs.\n1 prefers cats.\n1 prefers neither cats nor dogs\nThere were 0 invalid responses.\n"
+        output: "1 prefers dogs.\n1 prefers cats.\n1 prefers neither cats nor dogs.\nThere were 0 invalid responses.\n"
     },
     {
         input: "2\nCow\nCow",
-        output: "0 prefer dogs.\n0 prefer cats.\n0 prefer neither cats nor dogs\nThere were 2 invalid responses.\n"
+        output: "0 prefer dogs.\n0 prefer cats.\n0 prefer neither cats nor dogs.\nThere were 2 invalid responses.\n"
     }
 ];
 
