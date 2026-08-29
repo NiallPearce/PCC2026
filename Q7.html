@@ -1,1 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python Code Challenge 2026</title>
+<script src="https://cdn.jsdelivr.net/pyodide/v314.0.5/full/pyodide.js"></script>
+<link rel="stylesheet" href="PCC.css">
+</head>
 
+<body>
+<div class="container">
+    <h1>🐍 Python Coding Challenge</h1>
+    <!-- =====================================================
+         QUESTION
+         ===================================================== -->
+    <div class="question">
+        <h2>Challenge 7 **15 points**</h2>
+        <p>
+         Aimee has to think up a statistics problem for homework and decides to sample her friend's
+          preference for dogs or cats. You job is to report her findings.
+        </p>
+        <p><b>Input:</b> She is going to ask a number of her friends, and how many she asks will be
+          the first input, n. That input will be followed by n lines with the friends' respone of "Cat",
+          "Dog" or "None". But, as the friends are teenage girls, they don't like to be constrained.
+          So they might answer "Cow", "Gecko" or "Guinea pig". Anything other than "Cat", "Dog" or "None"
+          should be reported as "Invalid".
+        </p>
+        <p><b>Output:</b> will consist of 4 lines. The first will be how many prefer dogs, the second will
+          be how many prefer cats, the third will be how many prefer neither cats nor dogs and the last line
+          is how many invalid responses thre were. All responses must be grammatically correct.
+          eg "There were 0 invalid respones.", "1 prefer cats". You must use "prefer" for 0, 2 or more and
+          "prefers" for 1. Similarly "was" if one, and "were" if 0 or 2 or more.
+        </p>
+</b>
+
+        <p>
+          Sample input 1<br>
+          8<br>
+          Cat<br>
+          Dog<br>
+          None<br>
+          None<br>
+          Dog<br>
+          Budgie<br>
+          None<br>
+          Dog<br>
+        </p>
+        <p>
+          Your program should then print the following:
+        </p>
+        <div class="example">3 prefer dogs.
+        1 prefers cats.
+        3 prefer neither cats nor dogs.
+        There was 1 invalid response.</div>
+        
+      
+    </div>
+
+    <!-- =====================================================
+         STUDENT CODE
+         ===================================================== -->
+    <h2>Your Python Code</h2>
+    <textarea id="code"></textarea>
+
+    <!-- =====================================================
+         RUN BUTTON
+         ===================================================== -->
+    <button id="runButton"
+            onclick="runTests()"
+            disabled>
+
+        Loading Python...
+    </button>
+
+    <!-- =====================================================
+         STATUS
+         ===================================================== -->
+    <div id="status" class="loading">
+        Loading Python...
+    </div>
+
+    <!-- =====================================================
+         OUTPUT
+         ===================================================== -->
+    <label for="output">
+        Program Output
+    </label>
+
+    <textarea id="output"
+              readonly></textarea>
+
+    <!-- =====================================================
+         TEST RESULTS
+         ===================================================== -->
+    <div id="testResults"></div>
+    <p class="small">
+        Your program must produce exactly the expected output
+        for each test.
+    </p>
+</div>
+
+<script>
+/*
+=============================================================
+TEACHER SETTINGS
+=============================================================
+Change the question above and the tests below for each
+programming exercise.
+
+Note \n is used between separate lines for both input and output
+Output needs to have \n on the end to account for the print() newline
+=============================================================
+*/
+
+const tests = [
+    {
+        input: "Dog\nDog\nNone",
+        output: "Yay, I'm getting a dog.\n"
+    },
+    {
+        input: "Cat\nNone\nCat",
+        output: "Okay, I'm getting a cat.\n"
+    },
+    {
+        input: "Dog\n\None\nCat",
+        output: "I'm moving to Grandma's.\n"
+    },
+    {
+        input: "Cat\n\Cat\nCat",
+        output: "Okay, I'm getting a cat.\n"
+    }
+];
+
+/*
+=============================================================
+PYODIDE
+=============================================================
+*/
+let pyodide = null;
+/*
+=============================================================
+LOAD PYTHON
+=============================================================
+*/
+async function loadPython() {
+    try {
+        pyodide = await loadPyodide();
+        document.getElementById("runButton").disabled = false;
+        document.getElementById("runButton").textContent =
+            "▶ Run My Code";
+        document.getElementById("status").className =
+            "success";
+        document.getElementById("status").textContent =
+            "Python is ready. Write your code and click Run My Code.";
+    }
+    catch (error) {
+        document.getElementById("status").className =
+            "error";
+        document.getElementById("status").textContent =
+            "Could not load Python:\n\n" + error;
+    }
+}
+
+/*
+=============================================================
+RUN PYTHON CODE
+=============================================================
+Runs the student's program using the supplied test input.
+
+stdout and stderr are captured character-by-character so
+that newline characters produced by print() are preserved.
+=============================================================
+*/
+
+async function runPythonCode(code, inputData) {
+    let output = "";
+
+    /*
+    ---------------------------------------------------------
+    INPUT
+    ---------------------------------------------------------
+    Split the supplied test input into individual lines.
+    Example:
+    "Niall\n25"
+    becomes:
+    ["Niall", "25"]
+    ---------------------------------------------------------
+    */
+
+    const inputLines =
+        inputData.split("\n");
+    let inputPosition = 0;
+    pyodide.setStdin({
+        stdin: function() {
+            if (inputPosition < inputLines.length) {
+                return inputLines[inputPosition++];
+            }
+            /*
+            No more input available.
+            */
+            return undefined;
+        },
+        isatty: false
+    });
+
+    /*
+    ---------------------------------------------------------
+    STDOUT
+    ---------------------------------------------------------
+    Capture exactly what Python sends to stdout.
+
+    This preserves the newline characters produced by
+    print().
+    ---------------------------------------------------------
+    */
+
+    pyodide.setStdout({
+        raw: function(char) {
+            output += String.fromCharCode(char);
+        }
+    });
+
+
+    /*
+    ---------------------------------------------------------
+    STDERR
+    ---------------------------------------------------------
+    Capture Python errors.
+    ---------------------------------------------------------
+    */
+
+    pyodide.setStderr({
+        raw: function(char) {
+            output += String.fromCharCode(char);
+        }
+    });
+
+    /*
+    ---------------------------------------------------------
+    RUN PROGRAM
+    ---------------------------------------------------------
+    */
+
+    try {
+        await pyodide.runPythonAsync(code);
+        return {
+            success: true,
+            output: output
+        };
+    }
+
+    catch (error) {
+        return {
+            success: false,
+            output: output,
+            error: error.toString()
+        };
+    }
+}
+
+/*
+=============================================================
+CLEAN OUTPUT
+=============================================================
+We remove carriage returns because Windows and Unix systems
+can represent line endings differently.
+
+We DO NOT remove:
+- spaces
+- punctuation
+- blank lines
+- capitalisation
+
+Therefore the comparison remains strict.
+=============================================================
+*/
+
+function cleanOutput(text) {
+    return text.replace(/\r/g, "");
+}
+
+/*
+=============================================================
+COMPARE OUTPUT
+=============================================================
+*/
+
+function outputsMatch(actual, expected) {
+    return cleanOutput(actual) === cleanOutput(expected);
+}
+
+/*
+=============================================================
+ESCAPE HTML
+=============================================================
+Prevents student output from being interpreted as HTML.
+=============================================================
+*/
+
+function escapeHtml(text) {
+    return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+/*
+=============================================================
+RUN ALL TESTS
+=============================================================
+*/
+
+async function runTests() {
+    const code =
+        document.getElementById("code").value;
+    const outputBox =
+        document.getElementById("output");
+    const status =
+        document.getElementById("status");
+    const results =
+        document.getElementById("testResults");
+    const button =
+        document.getElementById("runButton");
+
+    /*
+    ---------------------------------------------------------
+    CHECK FOR EMPTY CODE
+    ---------------------------------------------------------
+    */
+
+    if (code.trim() === "") {
+        status.className =
+            "failure";
+        status.textContent =
+            "Please enter some Python code.";
+        return;
+    }
+
+    /*
+    ---------------------------------------------------------
+    PREPARE PAGE
+    ---------------------------------------------------------
+    */
+
+    button.disabled = true;
+    button.textContent = "Running...";
+    outputBox.value = "";
+    results.innerHTML = "";
+    status.className =
+        "loading";
+    status.textContent =
+        "Running your program against the test data...";
+
+    /*
+    ---------------------------------------------------------
+    TEST COUNTER
+    ---------------------------------------------------------
+    */
+
+    let passed = 0;
+    /*
+    ---------------------------------------------------------
+    RUN EACH TEST
+    ---------------------------------------------------------
+    */
+
+    for (
+        let i = 0;
+        i < tests.length;
+        i++
+    ) {
+        const test =
+            tests[i];
+
+        /*
+        Run student's code.
+        */
+
+        const result =
+            await runPythonCode(
+                code,
+                test.input
+            );
+
+        /*
+        Show the first test's output in the output box.
+        */
+
+        if (i === 0) {
+            outputBox.value =
+                result.output;
+        }
+
+        /*
+        Create result display.
+        */
+
+        const resultDiv =
+            document.createElement("div");
+        resultDiv.className =
+            "test-result";
+
+        /*
+        -----------------------------------------------------
+        PYTHON ERROR
+        -----------------------------------------------------
+        */
+
+        if (!result.success) {
+            resultDiv.classList.add(
+                "test-fail"
+            );
+            resultDiv.innerHTML =
+                "<strong>" +
+                "Test " +
+                (i + 1) +
+                " ❌ Python error" +
+                "</strong>" +
+                "<br><br>" +
+                "<pre>" +
+                escapeHtml(
+                    result.error
+                ) +
+                "</pre>";
+
+            results.appendChild(
+                resultDiv
+            );
+            continue;
+        }
+
+        /*
+        -----------------------------------------------------
+        COMPARE OUTPUT
+        -----------------------------------------------------
+        */
+
+        if (
+            outputsMatch(
+                result.output,
+                test.output
+            )
+        ) {
+
+            /*
+            TEST PASSED
+            */
+
+            passed++;
+            resultDiv.classList.add(
+                "test-pass"
+            );
+            resultDiv.innerHTML =
+                "<strong>" +
+                "Test " +
+                (i + 1) +
+                " ✓ Passed" +
+                "</strong>";
+        }
+
+        else {
+
+            /*
+            TEST FAILED
+            */
+
+            resultDiv.classList.add(
+                "test-fail"
+            );
+
+            resultDiv.innerHTML =
+                "<strong>" +
+                "Test " +
+                (i + 1) +
+                " ❌ Failed" +
+                "</strong>" +
+                "<br><br>" +
+                "<strong>Your output:</strong>" +
+                "<pre>" +
+                escapeHtml(
+                    result.output
+                ) +
+                "</pre>" +
+                "<strong>Expected output:</strong>" +
+                "<pre>" +
+                escapeHtml(
+                    test.output
+                ) +
+                "</pre>";
+        }
+
+        /*
+        Add result to page.
+        */
+
+        results.appendChild(
+            resultDiv
+        );
+    }
+
+    /*
+    ---------------------------------------------------------
+    FINAL RESULT
+    ---------------------------------------------------------
+    */
+
+    if (
+        passed === tests.length
+    ) {
+        status.className =
+            "success";
+        status.textContent =
+            "🎉 Excellent! All " +
+            tests.length +
+            " tests passed.";
+    }
+
+    else {
+        status.className =
+            "failure";
+        status.textContent =
+            passed +
+            " / " +
+            tests.length +
+            " tests passed. Keep working!";
+    }
+
+    /*
+    ---------------------------------------------------------
+    RE-ENABLE BUTTON
+    ---------------------------------------------------------
+    */
+
+    button.disabled = false;
+    button.textContent =
+        "▶ Run My Code";
+}
+
+/*
+=============================================================
+START PYTHON
+=============================================================
+*/
+
+loadPython();
+
+</script>
+</body>
+</html>
