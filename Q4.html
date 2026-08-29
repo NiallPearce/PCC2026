@@ -52,7 +52,6 @@
       
     </div>
 
-
     <!-- =====================================================
          STUDENT CODE
          ===================================================== -->
@@ -110,16 +109,16 @@ Note \n is used between separate lines for both input and output
 
 const tests = [
     {
-        input: "Niall\n25",
-        output: "Name: Niall\nAge: 25"
+        input: "25\n5",
+        output: "The last bag is full."
     },
     {
-        input: "Sarah\n16",
-        output: "Name: Sarah\nAge: 16"
+        input: "53\n17",
+        output: "The last bag has 2 ducks in it."
     },
     {
-        input: "Jack\n42",
-        output: "Name: Jack\nAge: 42"
+        input: "12\n13",
+        output: "The last bag has 12 ducks in it."
     }
 ];
 
@@ -181,57 +180,35 @@ async function runPythonCode(code, inputData) {
 
     const inputLines =
         inputData.split("\n");
-
-
     let inputPosition = 0;
-
-
     pyodide.setStdin({
-
         stdin: function() {
-
-
             if (inputPosition < inputLines.length) {
-
                 return inputLines[inputPosition++];
-
             }
-
-
             /*
             No more input available.
             */
-
             return undefined;
-
         },
-
         isatty: false
-
     });
-
 
     /*
     ---------------------------------------------------------
     STDOUT
     ---------------------------------------------------------
-
     Capture exactly what Python sends to stdout.
 
     This preserves the newline characters produced by
     print().
-
     ---------------------------------------------------------
     */
 
     pyodide.setStdout({
-
         raw: function(char) {
-
             output += String.fromCharCode(char);
-
         }
-
     });
 
 
@@ -239,22 +216,15 @@ async function runPythonCode(code, inputData) {
     ---------------------------------------------------------
     STDERR
     ---------------------------------------------------------
-
     Capture Python errors.
-
     ---------------------------------------------------------
     */
 
     pyodide.setStderr({
-
         raw: function(char) {
-
             output += String.fromCharCode(char);
-
         }
-
     });
-
 
     /*
     ---------------------------------------------------------
@@ -263,64 +233,42 @@ async function runPythonCode(code, inputData) {
     */
 
     try {
-
         await pyodide.runPythonAsync(code);
-
-
         return {
-
             success: true,
-
             output: output
-
         };
-
     }
-
 
     catch (error) {
-
         return {
-
             success: false,
-
             output: output,
-
             error: error.toString()
-
         };
-
     }
-
 }
-
 
 /*
 =============================================================
 CLEAN OUTPUT
 =============================================================
-
 We remove carriage returns because Windows and Unix systems
 can represent line endings differently.
 
 We DO NOT remove:
-
 - spaces
 - punctuation
 - blank lines
 - capitalisation
 
 Therefore the comparison remains strict.
-
 =============================================================
 */
 
 function cleanOutput(text) {
-
     return text.replace(/\r/g, "");
-
 }
-
 
 /*
 =============================================================
@@ -329,38 +277,25 @@ COMPARE OUTPUT
 */
 
 function outputsMatch(actual, expected) {
-
     return cleanOutput(actual) === cleanOutput(expected);
-
 }
-
 
 /*
 =============================================================
 ESCAPE HTML
 =============================================================
-
 Prevents student output from being interpreted as HTML.
-
 =============================================================
 */
 
 function escapeHtml(text) {
-
     return text
-
         .replace(/&/g, "&amp;")
-
         .replace(/</g, "&lt;")
-
         .replace(/>/g, "&gt;")
-
         .replace(/"/g, "&quot;")
-
         .replace(/'/g, "&#039;");
-
 }
-
 
 /*
 =============================================================
@@ -369,27 +304,16 @@ RUN ALL TESTS
 */
 
 async function runTests() {
-
-
     const code =
         document.getElementById("code").value;
-
-
     const outputBox =
         document.getElementById("output");
-
-
     const status =
         document.getElementById("status");
-
-
     const results =
         document.getElementById("testResults");
-
-
     const button =
         document.getElementById("runButton");
-
 
     /*
     ---------------------------------------------------------
@@ -398,19 +322,12 @@ async function runTests() {
     */
 
     if (code.trim() === "") {
-
         status.className =
             "failure";
-
-
         status.textContent =
             "Please enter some Python code.";
-
-
         return;
-
     }
-
 
     /*
     ---------------------------------------------------------
@@ -419,22 +336,13 @@ async function runTests() {
     */
 
     button.disabled = true;
-
     button.textContent = "Running...";
-
-
     outputBox.value = "";
-
     results.innerHTML = "";
-
-
     status.className =
         "loading";
-
-
     status.textContent =
         "Running your program against the test data...";
-
 
     /*
     ---------------------------------------------------------
@@ -443,8 +351,6 @@ async function runTests() {
     */
 
     let passed = 0;
-
-
     /*
     ---------------------------------------------------------
     RUN EACH TEST
@@ -456,11 +362,8 @@ async function runTests() {
         i < tests.length;
         i++
     ) {
-
-
         const test =
             tests[i];
-
 
         /*
         Run student's code.
@@ -472,19 +375,14 @@ async function runTests() {
                 test.input
             );
 
-
         /*
         Show the first test's output in the output box.
-
         */
 
         if (i === 0) {
-
             outputBox.value =
                 result.output;
-
         }
-
 
         /*
         Create result display.
@@ -492,11 +390,8 @@ async function runTests() {
 
         const resultDiv =
             document.createElement("div");
-
-
         resultDiv.className =
             "test-result";
-
 
         /*
         -----------------------------------------------------
@@ -505,43 +400,27 @@ async function runTests() {
         */
 
         if (!result.success) {
-
-
             resultDiv.classList.add(
                 "test-fail"
             );
-
-
             resultDiv.innerHTML =
-
                 "<strong>" +
-
                 "Test " +
                 (i + 1) +
                 " ❌ Python error" +
-
                 "</strong>" +
-
                 "<br><br>" +
-
                 "<pre>" +
-
                 escapeHtml(
                     result.error
                 ) +
-
                 "</pre>";
-
 
             results.appendChild(
                 resultDiv
             );
-
-
             continue;
-
         }
-
 
         /*
         -----------------------------------------------------
@@ -556,34 +435,23 @@ async function runTests() {
             )
         ) {
 
-
             /*
             TEST PASSED
             */
 
             passed++;
-
-
             resultDiv.classList.add(
                 "test-pass"
             );
-
-
             resultDiv.innerHTML =
-
                 "<strong>" +
-
                 "Test " +
                 (i + 1) +
                 " ✓ Passed" +
-
                 "</strong>";
-
         }
 
-
         else {
-
 
             /*
             TEST FAILED
@@ -593,43 +461,26 @@ async function runTests() {
                 "test-fail"
             );
 
-
             resultDiv.innerHTML =
-
                 "<strong>" +
-
                 "Test " +
                 (i + 1) +
                 " ❌ Failed" +
-
                 "</strong>" +
-
                 "<br><br>" +
-
-
                 "<strong>Your output:</strong>" +
-
                 "<pre>" +
-
                 escapeHtml(
                     result.output
                 ) +
-
                 "</pre>" +
-
-
                 "<strong>Expected output:</strong>" +
-
                 "<pre>" +
-
                 escapeHtml(
                     test.output
                 ) +
-
                 "</pre>";
-
         }
-
 
         /*
         Add result to page.
@@ -638,9 +489,7 @@ async function runTests() {
         results.appendChild(
             resultDiv
         );
-
     }
-
 
     /*
     ---------------------------------------------------------
@@ -651,42 +500,23 @@ async function runTests() {
     if (
         passed === tests.length
     ) {
-
-
         status.className =
             "success";
-
-
         status.textContent =
-
             "🎉 Excellent! All " +
-
             tests.length +
-
             " tests passed.";
-
     }
-
 
     else {
-
-
         status.className =
             "failure";
-
-
         status.textContent =
-
             passed +
-
             " / " +
-
             tests.length +
-
             " tests passed. Keep working!";
-
     }
-
 
     /*
     ---------------------------------------------------------
@@ -695,13 +525,9 @@ async function runTests() {
     */
 
     button.disabled = false;
-
-
     button.textContent =
         "▶ Run My Code";
-
 }
-
 
 /*
 =============================================================
