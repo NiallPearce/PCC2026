@@ -1,1 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python Code Challenge 2026</title>
+<script src="https://cdn.jsdelivr.net/pyodide/v314.0.5/full/pyodide.js"></script>
+<link rel="stylesheet" href="PCC.css">
+</head>
 
+<body>
+<div class="container">
+    <h1>🐍 Python Coding Challenge</h1>
+    <!-- =====================================================
+         QUESTION
+         ===================================================== -->
+    <div class="question">
+        <h2>Challenge 9 **20 points**</h2>
+        <p>
+         The Women's international cup for Golf Croquet is being played in New Zealand. The organisers have asked you to write a program to output the total
+          scores for each team in a group at the end of round 1. There are 5 teams in the group and they all play each other. The countries involved are Australia,
+          Bangladesh, Canada, Denmark and England.  (You notice the happy coincidence of their names!)
+        </p>
+        <p><b>Input:</b> will consist of all the lines required for each team to play every other team and on each line will be the country's letter, their score,
+          the opponent's country letter and their score, each separated by a space.
+        </p>
+        <p><b>Output:</b>  You are to output, in alphabetical order, the total score for each country.
+        </p>
+        <p>
+          Sample input<br>
+          A 3 B 4<br>
+          B 2 C 5<br>
+          D 7 A 0<br>
+          A 4 C 3<br>
+          D 1 C 6<br>
+          E 4 B 3<br>
+          E 5 C 2<br>
+          A 7 E 0<br>
+          D 4 E 3<br>
+          B 1 D 6
+        </p>
+        <p>
+          Your program should then print the following:
+        </p>
+        <div class="example">A 14<br>B 10<br>C 16<br>D 18<br>E 12
+        </div>
+        <h2>Save your code from this challenge for Challenge 10</h2>
+      
+    </div>
+
+    <!-- =====================================================
+         STUDENT CODE
+         ===================================================== -->
+    <h2>Your Python Code</h2>
+    <textarea id="code"></textarea>
+
+    <!-- =====================================================
+         RUN BUTTON
+         ===================================================== -->
+    <button id="runButton"
+            onclick="runTests()"
+            disabled>
+
+        Loading Python...
+    </button>
+
+    <!-- =====================================================
+         STATUS
+         ===================================================== -->
+    <div id="status" class="loading">
+        Loading Python...
+    </div>
+
+    <!-- =====================================================
+         OUTPUT
+         ===================================================== -->
+    <label for="output">
+        Program Output
+    </label>
+
+    <textarea id="output"
+              readonly></textarea>
+
+    <!-- =====================================================
+         TEST RESULTS
+         ===================================================== -->
+    <div id="testResults"></div>
+    <p class="small">
+        Your program must produce exactly the expected output
+        for each test.
+    </p>
+</div>
+
+<script>
+/*
+=============================================================
+TEACHER SETTINGS
+=============================================================
+Change the question above and the tests below for each
+programming exercise.
+
+Note \n is used between separate lines for both input and output
+Output needs to have \n on the end to account for the print() newline
+=============================================================
+*/
+
+const tests = [
+    {
+        input: "A 5 B 0\nA 3 C 3\nA 0 D 3\nA 6 E 4\nB 2 C 0\nB 4 D 3\nB 3 E 0\nC 2 D 2\nC 5 E 3\nD 0 E 4",
+        output: "A 14\nB 9\nC 10\nD 8\nE 11\n"
+    },
+    {
+        input: "A 0 B 1\nA 0 C 8\nA 0 D 5\nA 0 E 4\nB 20 C 15\nB 5 D 1\nB 9 E 4\nC 1 D 7\nC 8 E 2\nD 5 E 4",
+        output: "A 0\nB 35\nC 32\nD 18\nE 14\n"
+    }
+];
+
+/*
+=============================================================
+PYODIDE
+=============================================================
+*/
+let pyodide = null;
+/*
+=============================================================
+LOAD PYTHON
+=============================================================
+*/
+async function loadPython() {
+    try {
+        pyodide = await loadPyodide();
+        document.getElementById("runButton").disabled = false;
+        document.getElementById("runButton").textContent =
+            "▶ Run My Code";
+        document.getElementById("status").className =
+            "success";
+        document.getElementById("status").textContent =
+            "Python is ready. Write your code and click Run My Code.";
+    }
+    catch (error) {
+        document.getElementById("status").className =
+            "error";
+        document.getElementById("status").textContent =
+            "Could not load Python:\n\n" + error;
+    }
+}
+
+/*
+=============================================================
+RUN PYTHON CODE
+=============================================================
+Runs the student's program using the supplied test input.
+
+stdout and stderr are captured character-by-character so
+that newline characters produced by print() are preserved.
+=============================================================
+*/
+
+async function runPythonCode(code, inputData) {
+    let output = "";
+
+    /*
+    ---------------------------------------------------------
+    INPUT
+    ---------------------------------------------------------
+    Split the supplied test input into individual lines.
+    Example:
+    "Niall\n25"
+    becomes:
+    ["Niall", "25"]
+    ---------------------------------------------------------
+    */
+
+    const inputLines =
+        inputData.split("\n");
+    let inputPosition = 0;
+    pyodide.setStdin({
+        stdin: function() {
+            if (inputPosition < inputLines.length) {
+                return inputLines[inputPosition++];
+            }
+            /*
+            No more input available.
+            */
+            return undefined;
+        },
+        isatty: false
+    });
+
+    /*
+    ---------------------------------------------------------
+    STDOUT
+    ---------------------------------------------------------
+    Capture exactly what Python sends to stdout.
+
+    This preserves the newline characters produced by
+    print().
+    ---------------------------------------------------------
+    */
+
+    pyodide.setStdout({
+        raw: function(char) {
+            output += String.fromCharCode(char);
+        }
+    });
+
+
+    /*
+    ---------------------------------------------------------
+    STDERR
+    ---------------------------------------------------------
+    Capture Python errors.
+    ---------------------------------------------------------
+    */
+
+    pyodide.setStderr({
+        raw: function(char) {
+            output += String.fromCharCode(char);
+        }
+    });
+
+    /*
+    ---------------------------------------------------------
+    RUN PROGRAM
+    ---------------------------------------------------------
+    */
+
+    try {
+        await pyodide.runPythonAsync(code);
+        return {
+            success: true,
+            output: output
+        };
+    }
+
+    catch (error) {
+        return {
+            success: false,
+            output: output,
+            error: error.toString()
+        };
+    }
+}
+
+/*
+=============================================================
+CLEAN OUTPUT
+=============================================================
+We remove carriage returns because Windows and Unix systems
+can represent line endings differently.
+
+We DO NOT remove:
+- spaces
+- punctuation
+- blank lines
+- capitalisation
+
+Therefore the comparison remains strict.
+=============================================================
+*/
+
+function cleanOutput(text) {
+    return text.replace(/\r/g, "");
+}
+
+/*
+=============================================================
+COMPARE OUTPUT
+=============================================================
+*/
+
+function outputsMatch(actual, expected) {
+    return cleanOutput(actual) === cleanOutput(expected);
+}
+
+/*
+=============================================================
+ESCAPE HTML
+=============================================================
+Prevents student output from being interpreted as HTML.
+=============================================================
+*/
+
+function escapeHtml(text) {
+    return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+/*
+=============================================================
+RUN ALL TESTS
+=============================================================
+*/
+
+async function runTests() {
+    const code =
+        document.getElementById("code").value;
+    const outputBox =
+        document.getElementById("output");
+    const status =
+        document.getElementById("status");
+    const results =
+        document.getElementById("testResults");
+    const button =
+        document.getElementById("runButton");
+
+    /*
+    ---------------------------------------------------------
+    CHECK FOR EMPTY CODE
+    ---------------------------------------------------------
+    */
+
+    if (code.trim() === "") {
+        status.className =
+            "failure";
+        status.textContent =
+            "Please enter some Python code.";
+        return;
+    }
+
+    /*
+    ---------------------------------------------------------
+    PREPARE PAGE
+    ---------------------------------------------------------
+    */
+
+    button.disabled = true;
+    button.textContent = "Running...";
+    outputBox.value = "";
+    results.innerHTML = "";
+    status.className =
+        "loading";
+    status.textContent =
+        "Running your program against the test data...";
+
+    /*
+    ---------------------------------------------------------
+    TEST COUNTER
+    ---------------------------------------------------------
+    */
+
+    let passed = 0;
+    /*
+    ---------------------------------------------------------
+    RUN EACH TEST
+    ---------------------------------------------------------
+    */
+
+    for (
+        let i = 0;
+        i < tests.length;
+        i++
+    ) {
+        const test =
+            tests[i];
+
+        /*
+        Run student's code.
+        */
+
+        const result =
+            await runPythonCode(
+                code,
+                test.input
+            );
+
+        /*
+        Show the first test's output in the output box.
+        */
+
+        if (i === 0) {
+            outputBox.value =
+                result.output;
+        }
+
+        /*
+        Create result display.
+        */
+
+        const resultDiv =
+            document.createElement("div");
+        resultDiv.className =
+            "test-result";
+
+        /*
+        -----------------------------------------------------
+        PYTHON ERROR
+        -----------------------------------------------------
+        */
+
+        if (!result.success) {
+            resultDiv.classList.add(
+                "test-fail"
+            );
+            resultDiv.innerHTML =
+                "<strong>" +
+                "Test " +
+                (i + 1) +
+                " ❌ Python error" +
+                "</strong>" +
+                "<br><br>" +
+                "<pre>" +
+                escapeHtml(
+                    result.error
+                ) +
+                "</pre>";
+
+            results.appendChild(
+                resultDiv
+            );
+            continue;
+        }
+
+        /*
+        -----------------------------------------------------
+        COMPARE OUTPUT
+        -----------------------------------------------------
+        */
+
+        if (
+            outputsMatch(
+                result.output,
+                test.output
+            )
+        ) {
+
+            /*
+            TEST PASSED
+            */
+
+            passed++;
+            resultDiv.classList.add(
+                "test-pass"
+            );
+            resultDiv.innerHTML =
+                "<strong>" +
+                "Test " +
+                (i + 1) +
+                " ✓ Passed" +
+                "</strong>";
+        }
+
+        else {
+
+            /*
+            TEST FAILED
+            */
+
+            resultDiv.classList.add(
+                "test-fail"
+            );
+
+            resultDiv.innerHTML =
+                "<strong>" +
+                "Test " +
+                (i + 1) +
+                " ❌ Failed" +
+                "</strong>" +
+                "<br><br>" +
+                "<strong>Your output:</strong>" +
+                "<pre>" +
+                escapeHtml(
+                    result.output
+                ) +
+                "</pre>" +
+                "<strong>Expected output:</strong>" +
+                "<pre>" +
+                escapeHtml(
+                    test.output
+                ) +
+                "</pre>";
+        }
+
+        /*
+        Add result to page.
+        */
+
+        results.appendChild(
+            resultDiv
+        );
+    }
+
+    /*
+    ---------------------------------------------------------
+    FINAL RESULT
+    ---------------------------------------------------------
+    */
+
+    if (
+        passed === tests.length
+    ) {
+        status.className =
+            "success";
+        status.textContent =
+            "🎉 Excellent! All " +
+            tests.length +
+            " tests passed.";
+    }
+
+    else {
+        status.className =
+            "failure";
+        status.textContent =
+            passed +
+            " / " +
+            tests.length +
+            " tests passed. Keep working!";
+    }
+
+    /*
+    ---------------------------------------------------------
+    RE-ENABLE BUTTON
+    ---------------------------------------------------------
+    */
+
+    button.disabled = false;
+    button.textContent =
+        "▶ Run My Code";
+}
+
+/*
+=============================================================
+START PYTHON
+=============================================================
+*/
+
+loadPython();
+
+</script>
+</body>
+</html>
