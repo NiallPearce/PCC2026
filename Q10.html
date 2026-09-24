@@ -26,7 +26,7 @@
             you should output the score, then the country names (with the equal top score) separated by a comma and a space in alphabetical order.
         </p>
         <p>
-          Sample input<br>
+          Sample input 1<br>
           A 3 B 4<br>
           B 2 C 5<br>
           D 7 A 0<br>
@@ -43,6 +43,26 @@
         </p>
         <div class="example">18 Denmark
         </div>
+
+         <p>
+          Sample input 1<br>
+          A 3 B 4<br>
+          B 2 C 5<br>
+          D 7 A 0<br>
+          A 2 C 5<br>
+          D 1 C 6<br>
+          E 4 B 3<br>
+          E 5 C 2<br>
+          A 7 E 0<br>
+          D 4 E 3<br>
+          B 1 D 6
+        </p>
+        <p>
+          Your program should then print the following:
+        </p>
+        <div class="example">18 Canada, Denmark
+        </div>
+        
         <h2>Save your code from this challenge for Challenge 10</h2>
       
     </div>
@@ -106,11 +126,15 @@ Output needs to have \n on the end to account for the print() newline
 const tests = [
     {
         input: "A 5 B 0\nA 3 C 3\nA 0 D 3\nA 6 E 4\nB 2 C 0\nB 4 D 3\nB 3 E 0\nC 2 D 2\nC 5 E 3\nD 0 E 4",
-        output: "A 14\nB 9\nC 10\nD 8\nE 11\n"
+        output: "14 Australia"
     },
     {
-        input: "A 0 B 1\nA 0 C 8\nA 0 D 5\nA 0 E 4\nB 20 C 15\nB 5 D 1\nB 9 E 4\nC 1 D 7\nC 8 E 2\nD 5 E 4",
-        output: "A 0\nB 35\nC 32\nD 18\nE 14\n"
+        input: "A 0 B 1\nA 0 C 8\nA 0 D 5\nA 0 E 4\nB 20 C 15\nB 5 D 1\nB 9 E 4\nC 4 D 7\nC 8 E 2\nD 5 E 4",
+        output: "35 Bangladesh, Canada"
+    }
+    {
+        input: "A 0 B 1\nA 0 C 1\nA 0 D 1\nA 0 E 1\nB 1 C 1\nB 1 D 1\nB 1 E 1\nC 1 D 1\nC 1 E 1\nD 1 E 1",
+        output: "4 Bangladesh, Canada, Denmark, England"
     }
 ];
 
